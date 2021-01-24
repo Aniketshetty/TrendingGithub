@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">TrendingGit</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="delete">Delete</string>
+    <string name="name">Name</string>
+    <string name="star">Star</string>
+    <string name="desc">Description</string>
+    <string name="author">Author</string>
+    <string name="lang">Language</string>
+    <string name="forks">Forks</string>
+    <string name="default_branch">Branch</string>
+    <string name="please_wait">Please wait....</string>
+    <string name="str_loading_data_alert">Loading Data Please Wait...........</string>
+</resources>
