@@ -21,7 +21,7 @@ abstract class RepositoryDB : RoomDatabase() {
                         context,
                         RepositoryDB::class.java,
                         "repoGit"
-                    )
+                    ).allowMainThreadQueries()
                         .build()
                 }
             }

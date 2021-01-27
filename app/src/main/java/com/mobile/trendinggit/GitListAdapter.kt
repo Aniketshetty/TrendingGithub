@@ -61,7 +61,10 @@ class GitListAdapter(gitEvents: GitEvents) :
         holder.tv_name.text = filteredGitRepoList[position].name
         holder.tv_desc.text = filteredGitRepoList[position].description
 
-        holder.tv_desc.setOnClickListener {
+//        holder.tv_desc.setOnClickListener {
+//            gitEvents.onGitClicked(filteredGitRepoList[position].id)
+//        }
+        holder.itemView.setOnClickListener {
             gitEvents.onGitClicked(filteredGitRepoList[position].id)
         }
 
