@@ -10,6 +10,8 @@ import com.mobile.trendinggit.Data.RepositoryDB
 import com.mobile.trendinggit.Model.RepositoryModel
 import com.mobile.trendinggit.Network.APIClient
 import com.mobile.trendinggit.Network.ApiInterface
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -36,21 +38,24 @@ class GitPeriodicSync(context: Context, workerParams: WorkerParameters) :
                 var gitRepository: ArrayList<Repository>? = null
                 gitRepoListModel = response.body()
                 gitRepository = ArrayList()
-                for (i in 1 until gitRepoListModel!!.items!!.size) {
-                    val repository = Repository(
-                        i,
-                        gitRepoListModel!!.items!![i].fullName!!,
-                        gitRepoListModel!!.items!![i].name!!,
-                        gitRepoListModel!!.items!![i].owner!!.avatarUrl!!,
-                        gitRepoListModel!!.items!![i].description!!,
-                        gitRepoListModel!!.items!![i].language!!,
-                        gitRepoListModel!!.items!![i].stargazersCount,
-                        gitRepoListModel!!.items!![i].forksCount,
-                        gitRepoListModel!!.items!![i].defaultBranch!!
-                    )
-                    gitRepository.add(repository)
+
+                if (gitRepoListModel != null && gitRepoListModel?.items!!.size > 1) {
+                    for (i in 1 until gitRepoListModel!!.items!!.size) {
+                        val repository = Repository(
+                            i,
+                            gitRepoListModel!!.items!![i].fullName!!,
+                            gitRepoListModel!!.items!![i].name!!,
+                            gitRepoListModel!!.items!![i].owner!!.avatarUrl!!,
+                            gitRepoListModel!!.items!![i].description!!,
+                            gitRepoListModel!!.items!![i].language!!,
+                            gitRepoListModel!!.items!![i].stargazersCount,
+                            gitRepoListModel!!.items!![i].forksCount,
+                            gitRepoListModel!!.items!![i].defaultBranch!!
+                        )
+                        gitRepository.add(repository)
+                    }
+                    RepositoryDB.getInstance(applicationContext)!!.repoDAO().saveRepo(gitRepository)
                 }
-                RepositoryDB.getInstance(applicationContext)!!.repoDAO().saveRepo(gitRepository)
             }
 
             override fun onFailure(

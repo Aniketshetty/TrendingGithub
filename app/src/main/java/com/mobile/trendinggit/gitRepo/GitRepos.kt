@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -14,7 +15,7 @@ import com.mobile.trendinggit.Data.RepositoryDB
 import com.mobile.trendinggit.Model.RepositoryModel
 import com.mobile.trendinggit.Network.APIClient
 import com.mobile.trendinggit.Network.ApiInterface
-import com.mobile.trendinggit.Utils.ResponseStatus
+import com.mobile.trendinggit.Utils.ResponseStatusSC
 import kotlinx.coroutines.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -30,7 +31,7 @@ class GitRepos(application: Application) {
     private var repositoryDAO: RepositoryDAO
     private var allRepository: LiveData<List<Repository>>
 
-    private val responseStatus = MutableLiveData<ResponseStatus>()
+    private val responseStatus = MutableLiveData<ResponseStatusSC>()
     private val context1: CoroutineContext = Dispatchers.IO
     private val scope1 = CoroutineScope(context1 + SupervisorJob())
     var apiInterface: ApiInterface? = null
@@ -55,8 +56,8 @@ class GitRepos(application: Application) {
         return allRepository
     }
 
-    fun getGitNetwork(context: Context): MutableLiveData<ResponseStatus> {
-        responseStatus.value = ResponseStatus.start()
+    fun getGitNetwork(context: Context): MutableLiveData<ResponseStatusSC> {
+        responseStatus.value = ResponseStatusSC.Start
 
         if (getConnectivityStatusString(context)) {
 
@@ -72,7 +73,9 @@ class GitRepos(application: Application) {
                         gitRepoListModel = response.body()
                         gitRepository = ArrayList()
 //                        var image : Bitmap?=null
-                        for (i in 1 until gitRepoListModel!!.items!!.size) {
+
+                        if (gitRepoListModel != null && gitRepoListModel?.items!!.size > 1) {
+                            for (i in 1 until gitRepoListModel!!.items!!.size) {
 //                            try {
 //                                val url = URL( gitRepoListModel!!.items!!.get(i).owner!!.avatarUrl!!)
 //                                image =
@@ -80,24 +83,32 @@ class GitRepos(application: Application) {
 //                            } catch (e: IOException) {
 //                                println(e)
 //                            }
-                            val repository = Repository(
-                                i,
-                                gitRepoListModel!!.items!!.get(i).fullName!!,
-                                gitRepoListModel!!.items!!.get(i).name!!,
-                                gitRepoListModel!!.items!!.get(i).owner!!.avatarUrl!!,
-                                gitRepoListModel!!.items!!.get(i).description!!,
-                                gitRepoListModel!!.items!!.get(i).language!!,
-                                gitRepoListModel!!.items!!.get(i).stargazersCount,
-                                gitRepoListModel!!.items!!.get(i).forksCount,
-                                gitRepoListModel!!.items!!.get(i).defaultBranch!!
-                            )
-                            gitRepository!!.add(repository)
+                                val repository = Repository(
+                                    i,
+                                    gitRepoListModel!!.items!!.get(i).fullName!!,
+                                    gitRepoListModel!!.items!!.get(i).name!!,
+                                    gitRepoListModel!!.items!!.get(i).owner!!.avatarUrl!!,
+                                    gitRepoListModel!!.items!!.get(i).description!!,
+                                    gitRepoListModel!!.items!!.get(i).language!!,
+                                    gitRepoListModel!!.items!!.get(i).stargazersCount,
+                                    gitRepoListModel!!.items!!.get(i).forksCount,
+                                    gitRepoListModel!!.items!!.get(i).defaultBranch!!
+                                )
+                                gitRepository!!.add(repository)
+                            }
+                            saveGitTM(gitRepository)
+                            withContext(Dispatchers.Main)
+                            {
+                                responseStatus.value =
+                                    ResponseStatusSC.Success(gitRepository.toString())
+                            }
+                        } else {
+                            withContext(Dispatchers.Main) {
+                                responseStatus.value = ResponseStatusSC.Success("Empty")
+                            }
+
                         }
-                        saveGitTM(gitRepository)
-                        withContext(Dispatchers.Main)
-                        {
-                            responseStatus.value = ResponseStatus.success(gitRepository.toString())
-                        }
+
                     }
                 }
 
@@ -106,12 +117,12 @@ class GitRepos(application: Application) {
                     t: Throwable
                 ) {
                     Toast.makeText(context, "onFailure", Toast.LENGTH_SHORT).show()
-                    responseStatus.value = ResponseStatus.error(t)
+                    responseStatus.value = ResponseStatusSC.Error(t, "onFailure")
                     call.cancel()
                 }
             })
         } else {
-            responseStatus.setValue(ResponseStatus.success("completed"))
+            responseStatus.setValue(ResponseStatusSC.Success("completed"))
         }
         return responseStatus
     }
@@ -127,7 +138,7 @@ class GitRepos(application: Application) {
                 status = true
                 return status
             } else if (activeNetwork.type === ConnectivityManager.TYPE_MOBILE) {
-                status =  true
+                status = true
                 return status
             }
         } else {
@@ -138,6 +149,6 @@ class GitRepos(application: Application) {
     }
 
     fun gitRepoID(repositoryID: Int): Repository {
-      return  repositoryDAO.gitRepoID(repositoryID)
+        return repositoryDAO.gitRepoID(repositoryID)
     }
 }

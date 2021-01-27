@@ -21,12 +21,13 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import com.mobile.trendinggit.Utils.GitPeriodicSync
-import com.mobile.trendinggit.Utils.ResponseStatus
+//import com.mobile.trendinggit.Utils.ResponseStatus
 import com.mobile.trendinggit.Utils.Status
 import com.mobile.trendinggit.ViewModel.GitViewModel
 import com.mobile.trendinggit.ViewModel.MainViewModelProviderFactory
 import java.util.concurrent.TimeUnit
 import androidx.work.Constraints;
+import com.mobile.trendinggit.Utils.ResponseStatusSC
 
 
 /**
@@ -86,22 +87,26 @@ class FirstFragment : Fragment(), GitListAdapter.GitEvents {
     private fun getGitRepoStatus() {
 
         gitViewModel.getGitRepoStatus(mainActivity)
-            ?.observe(viewLifecycleOwner, Observer<ResponseStatus?> { it ->
-                when (it?.status) {
-                    Status.START -> {
-                        showLoader()
-                    }
-                    Status.LOADING -> Log.d("MainActivity", " Current Status LOADING")
-                    Status.SUCCESS -> {
-                        closeLoader()
-                    }
-                    Status.ERROR -> {
-                        Log.d(
-                            "MainActivity",
-                            " Current Status ERROR : " + it.data
-                        )
-                        closeLoader()
-                    }
+            ?.observe(viewLifecycleOwner, Observer<ResponseStatusSC?> { it ->
+                when (it) {
+//                    Status.START -> {
+//                        showLoader()
+//                    }
+//                    Status.LOADING -> Log.d("MainActivity", " Current Status LOADING")
+//                    Status.SUCCESS -> {
+//                        closeLoader()
+//                    }
+//                    Status.ERROR -> {
+//                        Log.d(
+//                            "MainActivity",
+//                            " Current Status ERROR : " + it.data
+//                        )
+//                        closeLoader()
+//                    }
+                    is ResponseStatusSC.Success -> closeLoader()
+                    is ResponseStatusSC.Error -> closeLoader()
+                    ResponseStatusSC.Start ->   showLoader()
+
                 }
 
             })

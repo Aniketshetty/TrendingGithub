@@ -5,13 +5,14 @@ import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import com.mobile.trendinggit.Data.Repository
-import com.mobile.trendinggit.Utils.ResponseStatus
+import com.mobile.trendinggit.Utils.ResponseStatusSC
+//import com.mobile.trendinggit.Utils.ResponseStatus
 import com.mobile.trendinggit.gitRepo.GitRepos
 
 
 class GitViewModel(application: Application) : AndroidViewModel(application) {
 
-    private var gitStatus: LiveData<ResponseStatus>? = null
+    private var gitStatus: LiveData<ResponseStatusSC>? = null
     var gitRepoData: LiveData<List<Repository>>
     lateinit var gitRepoID: Repository
     private val gitRepo: GitRepos = GitRepos(application)
@@ -23,7 +24,7 @@ class GitViewModel(application: Application) : AndroidViewModel(application) {
 
 
 
-    fun getGitRepoStatus(context: Context): LiveData<ResponseStatus>? {
+    fun getGitRepoStatus(context: Context): LiveData<ResponseStatusSC>? {
         gitStatus = gitRepo.getGitNetwork(context)
         return gitStatus
     }
